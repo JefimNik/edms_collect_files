@@ -1,19 +1,22 @@
 # python -m pip install --upgrade pip setuptools wheel
 # pip install xlrd
 
+from config import use_path
 import os
 import pandas as pd
 
-def get_file_list(root_dir: str) ->list:
+
+def get_file_list(root_dir: str) -> list:
     """
     get all paths+filenames from dir folder and make upper case
     """
     file_list = []
     for folder_path, _, file_names in os.walk(root_dir):
         for file_name in file_names:
-                full_path = os.path.join(folder_path, file_name).upper()
-                file_list.append(full_path)
+            full_path = os.path.join(folder_path, file_name).upper()
+            file_list.append(full_path)
     return file_list
+
 
 def filter_by_folder_and_filename(file_list: list, include_file, include_dir, exclude_file, exclude_dir) -> list:
     """
@@ -29,6 +32,7 @@ def filter_by_folder_and_filename(file_list: list, include_file, include_dir, ex
     file_list = [x for x in file_list if not exclude_file or not any(z in os.path.basename(x) for z in exclude_file)]
     file_list = [x for x in file_list if not include_file or any(z in os.path.basename(x) for z in include_file)]
     return file_list
+
 
 def remove_duplicates_by_filename(file_list: list) -> tuple[list, list]:
     """
@@ -47,7 +51,11 @@ def remove_duplicates_by_filename(file_list: list) -> tuple[list, list]:
             duplicates.append(path)
     return unique_files, duplicates
 
+
 def filter_by_sheet_names(file_list: list) -> tuple:
+    """
+    filter files by checking sheet names inside
+    """
     edms_bom_standard_list = []
     not_bom_file_list = []
     error_file_list = []
@@ -65,14 +73,14 @@ def filter_by_sheet_names(file_list: list) -> tuple:
     return edms_bom_standard_list, not_bom_file_list, error_file_list
 
 
-if __name__=="__main__":
-    root_dir = r"C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA HVAC MFZ 1-2\RAW\TUY\EDMS\TUSNA"
+if __name__ == "__main__":
+    root_dir = rf"{use_path}\Z34\Z34 CDA HVAC MFZ 1-2\RAW\TUY\EDMS\TUSNA"
+
     include_file = ["xls"]
     exclude_file = []
     include_dir = []
     exclude_dir = ["_archive"]
-    path_corrections_bom = ["BOM", "RPT", "BUM", "BOB", "RTP"] #
-
+    path_corrections_bom = ["BOM", "RPT", "BUM", "BOB", "RTP"]  #
 
     file_list = get_file_list(root_dir)
     print("get_file_list")
@@ -80,7 +88,8 @@ if __name__=="__main__":
     # for i in file_list:
     #     print(i)
 
-    filter_by_folder_and_filename = filter_by_folder_and_filename(file_list, include_file, exclude_file, include_dir, exclude_dir)
+    filter_by_folder_and_filename = filter_by_folder_and_filename(file_list, include_file, exclude_file, include_dir,
+                                                                  exclude_dir)
     print("filter_by_folder_and_filename")
     print(f"LEN file_list: {len(filter_by_folder_and_filename)}\n")
     # for i in filter_by_folder_and_filename:
@@ -97,11 +106,7 @@ if __name__=="__main__":
         print("No duplicates")
     print("")
 
-
-
-
-
-    bom_file_list,not_bom_file_list,error_file_list = filter_by_sheet_names(remove_duplicates_by_filename)
+    bom_file_list, not_bom_file_list, error_file_list = filter_by_sheet_names(remove_duplicates_by_filename)
     print("\nfilter_by_sheet_names")
     print(f"LEN file_list: {len(bom_file_list)}")
     print(f"LEN not bom list: {len(not_bom_file_list)}")
