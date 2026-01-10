@@ -1,23 +1,15 @@
-# python -m pip install --upgrade pip setuptools wheel
-# pip install xlrd
-# pip install openpyxl
-
-from config import root_dir, output_dir
 import os
 import pandas as pd
-import yaml
+from utils import load_config, print_list_data
 
 
 class RawData:
     def __init__(self, config):
-
-
-        self.df_errors = None
-        cfg = config["collect_data"]
-
+        # ---Paths from config---
         self.root_dir = config["path_data"]["root_dir"]
         self.output_dir = config["path_data"]["output_dir"]
 
+        # --- def variables ---
         self.file_list = []
         self.error_file_list = []
         self.not_bom_file_list = []
@@ -25,6 +17,7 @@ class RawData:
         self.output_path = None
         self.df_errors = None
 
+        # --- config variables---
         self.file_type = config["collect_data"]["file_type"]
         self.include_file = config["collect_data"]["include_file"]
         self.exclude_file = config["collect_data"]["exclude_file"]
@@ -34,12 +27,6 @@ class RawData:
         self.sheet_name_to_concat = config["collect_data"]["sheet_name_to_concat"]
         self.header_row = config["collect_data"]["header_row"]
         self.engine = config["collect_data"]["engine"]
-
-        pd.set_option("display.max_columns", 8)
-        pd.set_option("display.max_rows", 10)
-        pd.set_option("display.max_colwidth", 8)
-        pd.set_option("display.width", 150)
-        pd.set_option("display.expand_frame_repr", False)
 
     def get_file_list(self):
         """
@@ -119,15 +106,6 @@ class RawData:
         self.error_file_list = error_file_list
         return edms_bom_standard_list, not_bom_file_list, error_file_list
 
-    def print_list(self, file_list, text=""):
-        print(f"\n---{text}---")
-        if file_list:
-            print(f"LEN list: {len(file_list)}")
-            # for i in file_list:
-            #     print(i)
-        else:
-            print("Empty list")
-
     def make_df_from_excel_files(self):
         """
         collect and combine tables from approved BOM files from BOM sheet, headers on row 5 in Excel (index 4)
@@ -148,7 +126,7 @@ class RawData:
 
         self.df_combined = df_combined
         self.df_errors = df_errors
-        return df_combined,df_errors
+        return df_combined, df_errors
 
     def df_to_excel(self):
         if not self.df_combined.empty:
@@ -160,10 +138,20 @@ class RawData:
             print("\nEmpty df_combined, no export to Excel")
             return None
 
+    def run_rawdata_for_excel(self):
+        self.get_file_list()
+        self.filter_by_folder()
+        self.filter_by_filename()
+        self.remove_duplicates_by_filename()
+        self.filter_by_sheet_names()
+        self.make_df_from_excel_files()
+        self.df_to_excel()
+
 
 if __name__ == "__main__":
-    with open("_config_bom_type1.yaml") as f:
-        config = yaml.safe_load(f)
+    config = load_config("_config_bom_type1.yaml")
+    # data = RawData(config)
+    # data.run_rawdata_for_excel()
 
     print("--CONFIG--")
     for i in config.items():
@@ -176,21 +164,21 @@ if __name__ == "__main__":
     print(f"Output: {data.output_dir}")
 
     data.get_file_list()
-    data.print_list(data.file_list, "get_file_list")
+    print_list_data(data.file_list, "get_file_list")
 
     data.filter_by_folder()
-    data.print_list(data.file_list, "filter_by_folder")
+    print_list_data(data.file_list, "filter_by_folder")
 
     data.filter_by_filename()
-    data.print_list(data.file_list, "filter_by_filename")
+    print_list_data(data.file_list, "filter_by_filename")
 
     data.remove_duplicates_by_filename()
-    data.print_list(data.file_list, "remove_duplicates_by_filename")
+    print_list_data(data.file_list, "remove_duplicates_by_filename")
 
     data.filter_by_sheet_names()
-    data.print_list(data.file_list, "filter_by_sheet_names")
-    data.print_list(data.not_bom_file_list, "not_bom_file_list")
-    data.print_list(data.error_file_list, "error_file_list")
+    print_list_data(data.file_list, "filter_by_sheet_names")
+    print_list_data(data.not_bom_file_list, "not_bom_file_list")
+    print_list_data(data.error_file_list, "error_file_list")
 
     data.make_df_from_excel_files()
     print(f"\nDF shape: {data.df_combined.shape}")
