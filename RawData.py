@@ -12,6 +12,7 @@ class RawData:
     def __init__(self, config):
 
 
+        self.df_errors = None
         cfg = config["collect_data"]
 
         self.root_dir = config["path_data"]["root_dir"]
@@ -22,6 +23,7 @@ class RawData:
         self.not_bom_file_list = []
         self.df_combined = pd.DataFrame()
         self.output_path = None
+        self.df_errors = None
 
         self.file_type = config["collect_data"]["file_type"]
         self.include_file = config["collect_data"]["include_file"]
@@ -128,15 +130,25 @@ class RawData:
 
     def make_df_from_excel_files(self):
         """
-        collect and combine tables from approved BOM files from BOM sheet, headers on row 5 in Excel
+        collect and combine tables from approved BOM files from BOM sheet, headers on row 5 in Excel (index 4)
         """
         df_combined = []
+        df_errors = []
         for i in self.file_list:
-            df = pd.read_excel(i, sheet_name=self.sheet_name_to_concat, header=self.header_row, engine=self.engine)
-            df_combined.append(df)
+            try:
+                df = pd.read_excel(i, sheet_name=self.sheet_name_to_concat, header=self.header_row, engine=self.engine)
+                df_combined.append(df)
+            except Exception:
+                df_errors.append(i)
+
+        if not df_combined:
+            df_combined = pd.DataFrame()
+
         df_combined = pd.concat(df_combined, ignore_index=True)
+
         self.df_combined = df_combined
-        return df_combined
+        self.df_errors = df_errors
+        return df_combined,df_errors
 
     def df_to_excel(self):
         if not self.df_combined.empty:
