@@ -1,7 +1,8 @@
 # python -m pip install --upgrade pip setuptools wheel
 # pip install xlrd
+# pip install openpyxl
 
-from config import use_path
+from config import root_dir, output_dir
 import os
 import pandas as pd
 
@@ -67,20 +68,40 @@ def filter_by_sheet_names(file_list: list) -> tuple:
                 edms_bom_standard_list.append(path)
             else:
                 not_bom_file_list.append(path)
-        except:
+        except Exception:
             error_file_list.append(path)
 
     return edms_bom_standard_list, not_bom_file_list, error_file_list
 
 
-if __name__ == "__main__":
-    root_dir = rf"{use_path}\Z34\Z34 CDA HVAC MFZ 1-2\RAW\TUY\EDMS\TUSNA"
+def make_df_from_excel_files(file_list):
+    """
+    collect and combine tables from approved BOM files from BOM sheet, headers on row 5 in Excel
+    """
+    df_combined = []
+    for i in file_list:
+        df = pd.read_excel(i, sheet_name="BOM", header=4, engine="xlrd")
+        df_combined.append(df)
+    return pd.concat(df_combined, ignore_index=True)
 
+
+def df_to_excel(df_combined, output_dir):
+    df_combined.to_excel(rf"{output_dir}\bom_type1_excel_collected.xlsx", index=False)
+    return rf"{output_dir}\bom_type1_excel_collected.xlsx"
+
+
+def run_collect_bom_type1_excel_py(root_dir, output_dir):
+    # path_corrections_bom = ["BOM", "RPT", "BUM", "BOB", "RTP"]
     include_file = ["xls"]
     exclude_file = []
     include_dir = []
     exclude_dir = ["_archive"]
-    path_corrections_bom = ["BOM", "RPT", "BUM", "BOB", "RTP"]  #
+
+    pd.set_option("display.max_columns", 8)
+    pd.set_option("display.max_rows", 10)
+    pd.set_option("display.max_colwidth", 8)
+    pd.set_option("display.width", 150)
+    pd.set_option("display.expand_frame_repr", False)
 
     file_list = get_file_list(root_dir)
     print("get_file_list")
@@ -88,16 +109,16 @@ if __name__ == "__main__":
     # for i in file_list:
     #     print(i)
 
-    filter_by_folder_and_filename = filter_by_folder_and_filename(file_list, include_file, exclude_file, include_dir,
-                                                                  exclude_dir)
+    filtered = filter_by_folder_and_filename(file_list, include_file, exclude_file, include_dir,
+                                             exclude_dir)
     print("filter_by_folder_and_filename")
-    print(f"LEN file_list: {len(filter_by_folder_and_filename)}\n")
+    print(f"LEN file_list: {len(filtered)}\n")
     # for i in filter_by_folder_and_filename:
     #     print(i)
 
-    remove_duplicates_by_filename, list_of_duplicates = remove_duplicates_by_filename(filter_by_folder_and_filename)
+    removed_duplicates, list_of_duplicates = remove_duplicates_by_filename(filtered)
     print("remove_duplicates_by_filename")
-    print(f"LEN file_list: {len(remove_duplicates_by_filename)}")
+    print(f"LEN file_list: {len(removed_duplicates)}")
     if list_of_duplicates:
         print("Found duplicates")
         for i in list_of_duplicates:
@@ -106,7 +127,7 @@ if __name__ == "__main__":
         print("No duplicates")
     print("")
 
-    bom_file_list, not_bom_file_list, error_file_list = filter_by_sheet_names(remove_duplicates_by_filename)
+    bom_file_list, not_bom_file_list, error_file_list = filter_by_sheet_names(removed_duplicates)
     print("\nfilter_by_sheet_names")
     print(f"LEN file_list: {len(bom_file_list)}")
     print(f"LEN not bom list: {len(not_bom_file_list)}")
@@ -132,3 +153,17 @@ if __name__ == "__main__":
             print(i)
     else:
         print("\nNo Opening Errors")
+
+    df_combined = make_df_from_excel_files(bom_file_list)
+    print("\nmake_df_from_excel_files")
+
+    print(f"Shape: {df_combined.shape}")
+    print(f"Columns: {df_combined.columns}")
+    print(df_combined.head(10))
+
+    output_file = df_to_excel(df_combined, output_dir)
+    print(f"\nexcel created: {output_file}")
+
+
+if __name__ == "__main__":
+    run_collect_bom_type1_excel_py(root_dir, output_dir)
