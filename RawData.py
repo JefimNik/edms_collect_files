@@ -4,16 +4,27 @@ import pandas as pd
 
 
 class RawData:
-    def __init__(self, root_dir, output_dir):
+    def __init__(self, root_dir, output_dir,
+                 include_file=None,
+                 exclude_file=None,
+                 include_dir=None,
+                 exclude_dir=None,
+                 sheet_names=None):
+
         self.root_dir = root_dir
         self.output_dir = output_dir
 
         self.file_list = []
 
-        self.include_file = ["xls"]
-        self.exclude_file = []
-        self.include_dir = []
-        self.exclude_dir = ["_archive"]
+        self.include_file = include_file or "xls"  # for subclass
+        self.exclude_file = exclude_file or []  # for subclass
+
+        self.include_dir = include_dir or []
+        self.exclude_dir = exclude_dir or ["_archive"]
+
+        self.sheet_names = sheet_names or ["Summary", "BOM", "Error", "Warning", "Status"]  # for subclass
+        self.error_file_list = []
+        self.not_bom_file_list = []
 
         pd.set_option("display.max_columns", 8)
         pd.set_option("display.max_rows", 10)
@@ -54,7 +65,8 @@ class RawData:
         exclude_file = [x.upper() for x in self.exclude_file]
 
         file_list = self.file_list
-        file_list = [x for x in file_list if not exclude_file or not any(z in os.path.basename(x) for z in exclude_file)]
+        file_list = [x for x in file_list if
+                     not exclude_file or not any(z in os.path.basename(x) for z in exclude_file)]
         file_list = [x for x in file_list if not include_file or any(z in os.path.basename(x) for z in include_file)]
         self.file_list = file_list
         return file_list
@@ -74,7 +86,7 @@ class RawData:
                 unique_files.append(path)
             elif file_name in seen:
                 duplicates.append(path)
-        self.file_list=unique_files
+        self.file_list = unique_files
         return unique_files, duplicates
 
     def filter_by_sheet_names(self):
@@ -84,11 +96,10 @@ class RawData:
         edms_bom_standard_list = []
         not_bom_file_list = []
         error_file_list = []
-        sheet_names = ["Summary", "BOM", "Error", "Warning", "Status"]
         for path in self.file_list:
             try:
                 xls = pd.ExcelFile(path, engine="xlrd")
-                if all(i in xls.sheet_names for i in sheet_names):
+                if all(i in xls.sheet_names for i in self.sheet_names):
                     edms_bom_standard_list.append(path)
                 else:
                     not_bom_file_list.append(path)
@@ -109,9 +120,15 @@ class RawData:
             print("Empty list")
 
 
-# class RawDataBOMType1(RawData):
-#     def __init__(self, root_dir, output_dir):
-#         super().__init__(root_dir, output_dir)
+class RawDataBOMType1(RawData):
+    def __init__(self, root_dir, output_dir):
+        super().__init__(root_dir, output_dir)
+
+        self.include_file = ["xls"]
+        self.exclude_file = []
+
+        self.sheet_names = ["Summary", "BOM", "Error", "Warning", "Status"]
+
 
 if __name__ == "__main__":
     data = RawData(root_dir, output_dir)
