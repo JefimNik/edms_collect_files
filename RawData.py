@@ -33,20 +33,28 @@ class RawData:
         self.file_list = file_list
         return file_list
 
-    def filter_by_folder_and_filename(self):
+    def filter_by_folder(self):
         """
         exclude old and archived folders from list, files with specific names / include folders and files by rule
         """
-        include_file = [x.upper() for x in self.include_file]
         include_dir = [x.upper() for x in self.include_dir]
-        exclude_file = [x.upper() for x in self.exclude_file]
         exclude_dir = [x.upper() for x in self.exclude_dir]
 
         file_list = self.file_list
         file_list = [x for x in file_list if not exclude_dir or not any(z in os.path.dirname(x) for z in exclude_dir)]
         file_list = [x for x in file_list if not include_dir or any(z in os.path.dirname(x) for z in include_dir)]
-        file_list = [x for x in file_list if
-                     not exclude_file or not any(z in os.path.basename(x) for z in exclude_file)]
+        self.file_list = file_list
+        return file_list
+
+    def filter_by_filename(self):
+        """
+        exclude old and archived folders from list, files with specific names / include folders and files by rule
+        """
+        include_file = [x.upper() for x in self.include_file]
+        exclude_file = [x.upper() for x in self.exclude_file]
+
+        file_list = self.file_list
+        file_list = [x for x in file_list if not exclude_file or not any(z in os.path.basename(x) for z in exclude_file)]
         file_list = [x for x in file_list if not include_file or any(z in os.path.basename(x) for z in include_file)]
         self.file_list = file_list
         return file_list
@@ -114,8 +122,11 @@ if __name__ == "__main__":
     data.get_file_list()
     data.print_list(data.file_list, "get_file_list")
 
-    data.filter_by_folder_and_filename()
-    data.print_list(data.file_list, "filter_by_folder_and_filename")
+    data.filter_by_folder()
+    data.print_list(data.file_list, "filter_by_folder")
+
+    data.filter_by_filename()
+    data.print_list(data.file_list, "filter_by_filename")
 
     data.remove_duplicates_by_filename()
     data.print_list(data.file_list, "remove_duplicates_by_filename")
