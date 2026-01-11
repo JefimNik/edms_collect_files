@@ -153,6 +153,7 @@ class RawData:
 
 
 if __name__ == "__main__":
+
     config = load_config("_config_pdg_type1.yaml")
     # data = RawData(config)
     # data.run_rawdata_for_excel()
@@ -163,26 +164,28 @@ if __name__ == "__main__":
     print("")
 
     data = RawData(config)
+    report_file = os.path.join(data.output_dir, "RawData_paths.txt")
+    os.remove(report_file)
 
     print(f"Root: {data.root_dir}")
     print(f"Output: {data.output_dir}")
 
     data.get_file_list()
-    print_list_data(data.file_list, "get_file_list")
+    print_list_data(data.file_list, data.output_dir, "get_file_list")
 
     data.filter_by_folder()
-    print_list_data(data.file_list, "filter_by_folder")
+    print_list_data(data.file_list, data.output_dir,"filter_by_folder")
 
     data.filter_by_filename()
-    print_list_data(data.file_list, "filter_by_filename")
+    print_list_data(data.file_list, data.output_dir,"filter_by_filename")
 
     data.remove_duplicates_by_filename()
-    print_list_data(data.file_list, "remove_duplicates_by_filename")
+    print_list_data(data.file_list, data.output_dir,"remove_duplicates_by_filename")
 
     data.filter_by_sheet_names()
-    print_list_data(data.file_list, "filter_by_sheet_names")
-    print_list_data(data.not_bom_file_list, "not_bom_file_list")
-    print_list_data(data.error_file_list, "error_file_list")
+    print_list_data(data.file_list, data.output_dir,"filter_by_sheet_names")
+    print_list_data(data.not_bom_file_list, data.output_dir,"not_bom_file_list")
+    print_list_data(data.error_file_list, data.output_dir,"error_file_list")
 
     data.make_df_from_excel_files()
     print(f"\nDF shape: {data.df_combined.shape}")
