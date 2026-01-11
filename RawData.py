@@ -115,6 +115,8 @@ class RawData:
         for i in self.file_list:
             try:
                 df = pd.read_excel(i, sheet_name=self.sheet_name_to_concat, header=self.header_row, engine=self.engine)
+                df["__FILENAME__"] = os.path.basename(i)
+                df["__FILEPATH__"] = i
                 df_combined.append(df)
             except Exception:
                 df_errors.append(i)
