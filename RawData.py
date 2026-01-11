@@ -122,9 +122,11 @@ class RawData:
                 df_errors.append(i)
 
         if not df_combined:
+            print("DF NOT COMBINED")
             df_combined = pd.DataFrame()
 
-        df_combined = pd.concat(df_combined, ignore_index=True)
+        else:
+            df_combined = pd.concat(df_combined, ignore_index=True)
 
         self.df_combined = df_combined
         self.df_errors = df_errors
@@ -151,7 +153,7 @@ class RawData:
 
 
 if __name__ == "__main__":
-    config = load_config("_config_bom_type1.yaml")
+    config = load_config("_config_pdg_type1.yaml")
     # data = RawData(config)
     # data.run_rawdata_for_excel()
 
