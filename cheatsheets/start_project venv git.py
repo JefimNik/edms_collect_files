@@ -1,5 +1,6 @@
 venv\Scripts\python.exe - -version # check python version
 python -m venv venv # add venv
+py -3.13 -m venv venv
 venv\Scripts\activate # activate venv
 python -c "import sys; print(sys.executable)" # check venv path
 

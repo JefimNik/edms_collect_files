@@ -153,7 +153,7 @@ class RawData:
 
 
 if __name__ == "__main__":
-    config = load_config("_config_pdg_type1.yaml")
+    config = load_config("_config_bom_type1.yaml")
     # data = RawData(config)
     # data.run_rawdata_for_excel()
 
