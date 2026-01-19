@@ -1,6 +1,6 @@
 path_data:
-  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA STG TUY MFZ 1\RAW\EDMS'
-  output_dir: 'C:\Users\user\Desktop\new code'
+  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA HVAC MFZ 1-2\_DUCTING\EDMS_RAW'
+  output_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA HVAC MFZ 1-2\_DUCTING\EDMS_AGREGATED'
 
 collect_data:
   file_type: "bom_type1"

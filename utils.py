@@ -17,4 +17,4 @@ def print_list_data(file_list, output_dir=None, text=""):
         f.write(f"\n---{text}---\n")
         f.write(f"LEN list: {len(file_list)}\n")
         for path in file_list:
-            f.write(f"{path}\n")
+            f.write(f"          {path}\n")

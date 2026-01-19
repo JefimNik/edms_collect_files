@@ -11,6 +11,8 @@ class RawData:
 
         # --- def variables ---
         self.file_list = []
+        self.edms_bom_standard_list = []
+        self.edms_bom_axima_list = []
         self.error_file_list = []
         self.not_bom_file_list = []
         self.df_combined = pd.DataFrame()
@@ -85,26 +87,61 @@ class RawData:
         self.file_list = unique_files
         return unique_files, duplicates
 
+    # def filter_by_sheet_names(self):
+    #     """
+    #     filter files by checking sheet names inside
+    #     """
+    #     edms_bom_standard_list = []
+    #     not_bom_file_list = []
+    #     error_file_list = []
+    #     for path in self.file_list:
+    #         try:
+    #             xls = pd.ExcelFile(path, engine="xlrd")
+    #             if all(i in xls.sheet_names for i in self.sheet_names):
+    #                 edms_bom_standard_list.append(path)
+    #             else:
+    #                 not_bom_file_list.append(path)
+    #         except Exception:
+    #             error_file_list.append(path)
+    #     self.file_list = edms_bom_standard_list
+    #     self.not_bom_file_list = not_bom_file_list
+    #     self.error_file_list = error_file_list
+    #     return edms_bom_standard_list, not_bom_file_list, error_file_list
+
     def filter_by_sheet_names(self):
         """
         filter files by checking sheet names inside
         """
         edms_bom_standard_list = []
+        edms_bom_axima_list = []
         not_bom_file_list = []
         error_file_list = []
         for path in self.file_list:
-            try:
-                xls = pd.ExcelFile(path, engine="xlrd")
-                if all(i in xls.sheet_names for i in self.sheet_names):
-                    edms_bom_standard_list.append(path)
-                else:
-                    not_bom_file_list.append(path)
-            except Exception:
-                error_file_list.append(path)
+            if path.suffix == ".XLS":
+                try:
+                    xls = pd.ExcelFile(path, engine="xlrd")
+                    if all(i in xls.sheet_names for i in self.sheet_names):
+                        edms_bom_standard_list.append(path)
+                    else:
+                        not_bom_file_list.append(path)
+                except Exception:
+                    error_file_list.append(path)
+            elif path.suffix == ".XLSM" or path.suffix == ".XLSX":
+                try:
+                    xls = pd.ExcelFile(path, engine="openpyxl")
+                    if all(i in xls.sheet_names for i in self.sheet_names):
+                        edms_bom_axima_list.append(path)
+                    else:
+                        not_bom_file_list.append(path)
+                except Exception:
+                    error_file_list.append(path)
+
+
         self.file_list = edms_bom_standard_list
+        self.edms_bom_axima_list = edms_bom_axima_list
         self.not_bom_file_list = not_bom_file_list
         self.error_file_list = error_file_list
-        return edms_bom_standard_list, not_bom_file_list, error_file_list
+        return edms_bom_standard_list, edms_bom_axima_list, not_bom_file_list, error_file_list
 
     def make_df_from_excel_files(self):
         """
@@ -131,6 +168,8 @@ class RawData:
         self.df_combined = df_combined
         self.df_errors = df_errors
         return df_combined, df_errors
+
+
 
     def df_to_excel(self):
         if not self.df_combined.empty:
@@ -180,8 +219,9 @@ if __name__ == "__main__":
     print_list_data(data.file_list, data.output_dir,"remove_duplicates_by_filename")
 
     data.filter_by_sheet_names()
-    print_list_data(data.file_list, data.output_dir,"filter_by_sheet_names")
-    print_list_data(data.not_bom_file_list, data.output_dir,"not_bom_file_list")
+    print_list_data(data.edms_bom_standard_list, data.output_dir,"edms_standard_list")
+    print_list_data(data.edms_bom_axima_list, data.output_dir,"edms_pdg_axima_list")
+    print_list_data(data.not_bom_file_list, data.output_dir,"not_type_file_list")
     print_list_data(data.error_file_list, data.output_dir,"error_file_list")
 
     data.make_df_from_excel_files()
