@@ -1,6 +1,6 @@
 path_data:
-  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA STG TUY MFZ 1\RAW\EDMS'
-  output_dir: 'C:\Users\user\Desktop\new code'
+  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\V35\V35 CDA STG TUY MFZ 4-5\EDMS_RAW_N34'
+  output_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\V35\V35 CDA STG TUY MFZ 4-5\EDMS_RAW_N34_AGREGATED'
 
 collect_data:
   file_type: "bom_type1"
@@ -8,7 +8,7 @@ collect_data:
   exclude_file: ["(2)","(3)","SUPPORT"]
   include_dir: []
   exclude_dir: [ "_archive" ]
-  sheet_names: [ "Summary", "BOM", "Error", "Warning", "Status" ]
+  sheet_names: [ "Summary", "BOM", "Error"]
   sheet_name_to_concat: "BOM"
   header_row: 4
   engine: "xlrd"
