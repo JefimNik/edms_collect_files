@@ -1,0 +1,14 @@
+path_data:
+  root_dir: 'D:\Vilesco\DATA_CORE - Documents\Z34\Z34 CDA HVAC MFZ 1-2\RAW\TUY\EDMS'
+  output_dir: 'C:\Users\jniki\Desktop'
+
+collect_data:
+  file_type: "bom_type1"
+  include_file: [ "xls" ]
+  exclude_file: []
+  include_dir: []
+  exclude_dir: [ "_archive" ]
+  sheet_names: [ "Summary", "BOM", "Error", "Warning", "Status" ]
+  sheet_name_to_concat: "BOM"
+  header_row: 4
+  engine: "xlrd"

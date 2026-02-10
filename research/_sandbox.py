@@ -51,7 +51,7 @@ def collect_dataframe(file_paths, sheet_name_to_concat, header_row, engine):
 
 
 if __name__ == "__main__":
-    config = load_config("_config_bom_type1.yaml")
+    config = load_config("../app/config/_config_bom_type1.yaml")
     c = config["collect_data"]
     root_dir = config["path_data"]["root_dir"]
     output_dir = config["path_data"]["output_dir"]
