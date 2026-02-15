@@ -4,7 +4,7 @@ path_data:
 
 collect_data:
   file_type: "bom_type1"
-  include_file: [ "xls" ]
+  include_file: [ "xls" ]  # test
   exclude_file: []
   include_dir: []
   exclude_dir: [ "_archive" ]
