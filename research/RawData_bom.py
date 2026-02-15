@@ -1,10 +1,12 @@
-import dataclasses
 import os
 import pandas as pd
 from utils import load_config, print_list_data
 
-from DatabaseManager import DatabaseManager
 
+class DataTransfer:
+    def __init__(self, config):
+        self.root_dir = config["path_data"]["root_dir"]
+        self.output_dir = config["path_data"]["output_dir"]
 
 class RawData:
     def __init__(self, config):
@@ -195,7 +197,3 @@ if __name__ == "__main__":
     print(f"\nDF shape: {data.df_combined.shape}")
     data.df_to_excel()
     print(f"\nExcel saved to: {data.output_path}")
-
-    db = DatabaseManager(data.output_dir, "db_file_bom")
-    db.save_to_db(data.df_combined,"df_combined")
-
