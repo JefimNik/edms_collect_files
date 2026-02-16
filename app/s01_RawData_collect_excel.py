@@ -3,16 +3,16 @@ import pandas as pd
 import yaml
 from tqdm import tqdm
 
-from DatabaseManager import DatabaseManager
-from utils import load_config
+from _DatabaseManager import DatabaseManager
+from _utils import load_config, config_to_df
 
 
 class RawData:
     def __init__(self, config):
 
         # --- Class variables---
-        self.df_files = None
-        self.df_combined = None
+        self.df_collect_steps = None
+        self.df_combined_files = None
 
         # ---Paths from config---
         self.root_dir = config["path_data"]["root_dir"]
@@ -41,10 +41,10 @@ class RawData:
                 full_path = os.path.join(folder_path, file_name).upper()
                 file_list.append(full_path)
 
-        self.df_files = pd.DataFrame({f_name: file_list})
-        self.df_files["index"] = self.df_files.index
-        self.df_files["dir"] = self.df_files[f_name].apply(os.path.dirname).str.upper()
-        self.df_files["file"] = self.df_files[f_name].apply(os.path.basename).str.upper()
+        self.df_collect_steps = pd.DataFrame({f_name: file_list})
+        self.df_collect_steps["index"] = self.df_collect_steps.index
+        self.df_collect_steps["dir"] = self.df_collect_steps[f_name].apply(os.path.dirname).str.upper()
+        self.df_collect_steps["file"] = self.df_collect_steps[f_name].apply(os.path.basename).str.upper()
         return None
 
     def filter_by_folder(self):
@@ -53,7 +53,7 @@ class RawData:
         include_dir = [x.upper() for x in self.include_dir]
         exclude_dir = [x.upper() for x in self.exclude_dir]
 
-        df_temp = self.df_files[["index", "dir"]].copy()
+        df_temp = self.df_collect_steps[["index", "dir"]].copy()
         df_temp.columns = ["index", f_name]
 
         if include_dir:
@@ -64,7 +64,7 @@ class RawData:
             pattern = "|".join(exclude_dir)
             df_temp = df_temp[~df_temp[f_name].str.contains(pattern, regex=True)]
 
-        self.df_files = self.df_files.merge(df_temp, left_on="index", right_on="index", how="left")
+        self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
 
         return None
 
@@ -74,7 +74,7 @@ class RawData:
         include_file = [x.upper() for x in self.include_file]
         exclude_file = [x.upper() for x in self.exclude_file]
 
-        df_temp = self.df_files[["index", "filter_by_folder", "file"]].copy()
+        df_temp = self.df_collect_steps[["index", "filter_by_folder", "file"]].copy()
         df_temp.columns = ["index", "filter_by_folder_temp", f_name]
 
         if include_file:
@@ -85,10 +85,10 @@ class RawData:
             pattern = "|".join(exclude_file)
             df_temp = df_temp[~df_temp[f_name].str.contains(pattern, regex=True)]
 
-        self.df_files = self.df_files.merge(df_temp, left_on=["index", "dir"],
-                                            right_on=["index", "filter_by_folder_temp"],
-                                            how="left")
-        self.df_files = self.df_files.drop(columns=["filter_by_folder_temp"])
+        self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on=["index", "dir"],
+                                                            right_on=["index", "filter_by_folder_temp"],
+                                                            how="left")
+        self.df_collect_steps = self.df_collect_steps.drop(columns=["filter_by_folder_temp"])
 
         return f_name
 
@@ -100,10 +100,10 @@ class RawData:
         f_name = "remove_duplicates_by_filename"
 
         # --- dataframe ---
-        df_temp = self.df_files[["index", "filter_by_filename"]].copy()
+        df_temp = self.df_collect_steps[["index", "filter_by_filename"]].copy()
         df_temp.columns = ["index", f_name]
         df_temp = df_temp.drop_duplicates(subset=[f_name])
-        self.df_files = self.df_files.merge(df_temp, left_on="index", right_on="index", how="left")
+        self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
 
         return None
 
@@ -113,7 +113,7 @@ class RawData:
         """
         f_name = "filter_by_sheet_names"
 
-        df_temp = self.df_files[["index", "filter_by_folder", "remove_duplicates_by_filename"]].copy()
+        df_temp = self.df_collect_steps[["index", "filter_by_folder", "remove_duplicates_by_filename"]].copy()
         df_temp.columns = ["index", "filter_by_folder_temp", f_name]
 
         mask_valid = pd.Series(False, index=df_temp.index)
@@ -135,7 +135,7 @@ class RawData:
 
         df_temp = df_temp[mask_valid]
         df_temp = df_temp.drop(columns=["filter_by_folder_temp"])
-        self.df_files = self.df_files.merge(df_temp, left_on="index", right_on="index", how="left")
+        self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
 
         return None
 
@@ -145,11 +145,11 @@ class RawData:
         """
         f_name = "make_df_from_excel_files"
 
-        df_temp = self.df_files[["index", "get_file_list", "filter_by_sheet_names"]].copy()
+        df_temp = self.df_collect_steps[["index", "get_file_list", "filter_by_sheet_names"]].copy()
         df_temp.columns = ["index", "get_file_list", f_name]
         df_temp = df_temp.dropna(subset=f_name)
 
-        df_combined = []
+        df_combined_files = []
         file_list = df_temp["get_file_list"]
         mask_valid = pd.Series(False, index=df_temp.index)
 
@@ -158,30 +158,29 @@ class RawData:
                 df = pd.read_excel(i, sheet_name=self.sheet_name_to_concat, header=self.header_row, engine=self.engine)
                 df["__FILENAME__"] = os.path.basename(i)
                 df["__FILEPATH__"] = i
-                df_combined.append(df)
+                df_combined_files.append(df)
                 mask_valid.loc[id] = True
             except Exception:
                 mask_valid.loc[id] = False
 
-        if not df_combined:
+        if not df_combined_files:
             print("DF NOT COMBINED")
 
         else:
             df_temp = df_temp[mask_valid]
             df_temp = df_temp.drop(columns=["get_file_list"])
-            self.df_files = self.df_files.merge(df_temp, left_on="index", right_on="index", how="left")
-            self.df_combined = pd.concat(df_combined, ignore_index=True)
-
+            self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
+            self.df_combined_files = pd.concat(df_combined_files, ignore_index=True)
         return None
 
-    def df_to_excel(self):
-        if not self.df_combined.empty:
+    def df_to_excel(self): # use db_tables_to_excel from _DatabaseManager
+        if not self.df_combined_files.empty:
             output_path = rf"{self.output_dir}\{self.file_type}_excel_collected.xlsx"
-            self.df_combined.to_excel(output_path, index=False)
+            self.df_combined_files.to_excel(output_path, index=False)
             self.output_path = output_path
             return output_path
         else:
-            print("\nEmpty df_combined, no export to Excel")
+            print("\nEmpty df_combined_files, no export to Excel")
             return None
 
     def run_rawdata(self):
@@ -201,21 +200,15 @@ class RawData:
 
 if __name__ == "__main__":
     config = load_config("config/_config_bom_type1.yaml")
+    output_dir, df_config = config_to_df(config)
     print(yaml.dump(config, sort_keys=False, allow_unicode=True))
 
     data = RawData(config)
-
     data.run_rawdata()
 
-    # data.get_file_list()
-    # data.filter_by_folder()
-    # data.filter_by_filename()
-    # data.remove_duplicates_by_filename()
-    # data.filter_by_sheet_names()
-    # data.make_df_from_excel_files()
-    # data.df_to_excel()
+    db = DatabaseManager(data.output_dir, "pipeline.db")
+    db.save_to_db(data.df_collect_steps, "Collect_files")
+    db.save_to_db(data.df_combined_files, "Combine_files")
 
-    db = DatabaseManager(data.output_dir, "db_file_bom")
-    db.save_to_db(data.df_files, "df_steps_list3")
-    db.save_to_db(data.df_combined, "df_combined")
-
+    tables_list = db.db_table_list()
+    db.db_tables_to_excel(tables_list, output_dir, df_config=df_config)
