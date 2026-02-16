@@ -206,9 +206,11 @@ if __name__ == "__main__":
     data = RawData(config)
     data.run_rawdata()
 
-    db = DatabaseManager(data.output_dir, "pipeline.db")
-    db.save_to_db(data.df_collect_steps, "Collect_files")
-    db.save_to_db(data.df_combined_files, "Combine_files")
+    db = DatabaseManager(config)
+    db.save_to_db(df_config, "S0_config")
+    db.save_to_db(data.df_collect_steps, "S1_Collect_files")
+    db.save_to_db(data.df_combined_files, "S2_Combine_files")
 
     tables_list = db.db_table_list()
-    db.db_tables_to_excel(tables_list, output_dir, df_config=df_config)
+    # args: table_list, output_dir=None, file_name="db_review.xlsx", df_config=None
+    db.db_tables_to_excel()

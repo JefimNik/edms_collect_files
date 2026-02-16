@@ -1,6 +1,7 @@
 import yaml
 import os
 import pandas as pd
+import json
 
 
 def load_config(config_path):
@@ -20,10 +21,24 @@ def print_list_data(file_list, output_dir=None, text=""):
         for path in file_list:
             f.write(f"          {path}\n")
 
+
 def config_to_df(config):
     output_dir = config["path_data"]["output_dir"]
+
     df_config = pd.json_normalize(config).T.reset_index()
-    df_config.columns = ["category", "parameter"]
-    df_config[["category", "subcategory"]] = df_config["category"].str.split(".", n=1, expand=True)
-    df_config = df_config[["category", "subcategory", "parameter"]]
+    df_config.columns = ["full_key", "value"]
+
+    df_config[["category", "subcategory"]] = (
+        df_config["full_key"].str.split(".", n=1, expand=True)
+    )
+
+    df_config = df_config[["category", "subcategory", "value"]]
+
+    # 🔥 ВАЖНО — преобразуем list/dict в JSON
+    df_config["value"] = df_config["value"].apply(
+        lambda x: json.dumps(x, ensure_ascii=False)
+        if isinstance(x, (list, dict))
+        else x
+    )
+
     return output_dir, df_config

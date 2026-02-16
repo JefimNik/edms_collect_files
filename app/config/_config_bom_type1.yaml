@@ -1,6 +1,7 @@
 path_data:
   root_dir: 'C:\Users\jniki\Desktop\itub'
   output_dir: 'C:\Users\jniki\Desktop\itub_result'
+  db_name: "pipeline.db"
 
 collect_data:
   file_type: "bom_type1"
