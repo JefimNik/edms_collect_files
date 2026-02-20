@@ -1,15 +1,48 @@
+#path_data:
+#  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\V35\V35 CDA STG TUY MFZ 3-5\EDMS_RAW_N34'
+#  output_dir: 'C:\Users\user\Desktop\ACIER\'
+#  db_name: "pipeline.db"
+#
+#collect_data:
+#  file_type: "bom_type1"
+#  include_file: [ "xls" ]  # test
+#  exclude_file: []
+#  include_dir: []
+#  exclude_dir: [ "_archive" ]
+#  sheet_names: [ "Summary", "BOM" ]  # , "Error", "Warning", "Status"
+#  sheet_name_to_concat: "BOM"
+#  header_row: 4
+#  engine: "xlrd"
+#
+#  collect_pdf:
+#    file_type: "pdf"
+#    include_file: [ "pdf" ]  # test
+#    exclude_file: ["STAMPED" ]
+#    include_dir: [ ]
+#    exclude_dir: [ "_archive" ]
+#    engine: "xlrd"
+
+
 path_data:
-  root_dir: 'C:\Users\jniki\Desktop\itub'
-  output_dir: 'C:\Users\jniki\Desktop\itub_result'
+  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA STG TUY MFZ 1\EDMS_RAW\'
+  output_dir: 'C:\Users\user\Desktop\'
   db_name: "pipeline.db"
 
 collect_data:
-  file_type: "bom_type1"
-  include_file: [ "xls" ]  # test
-  exclude_file: []
+  file_type: "pdf_collect"
+  include_file: [ "pdf" ]  # test
+  exclude_file: ["STAMP","SUPPORT"]
   include_dir: []
   exclude_dir: [ "_archive" ]
-  sheet_names: [ "Summary", "BOM", "Error", "Warning", "Status" ]
+  sheet_names: [ "Summary", "BOM" ]  # , "Error", "Warning", "Status"
   sheet_name_to_concat: "BOM"
   header_row: 4
   engine: "xlrd"
+
+  collect_pdf:
+    file_type: "pdf"
+    include_file: [ "pdf" ]  # test
+    exclude_file: ["STAMPED" ]
+    include_dir: [ ]
+    exclude_dir: [ "_archive" ]
+    engine: "xlrd"

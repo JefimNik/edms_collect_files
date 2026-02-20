@@ -2,6 +2,8 @@ import yaml
 import os
 import pandas as pd
 import json
+from pypdf import PdfReader, PdfWriter
+from pathlib import Path
 
 
 def load_config(config_path):
@@ -42,3 +44,68 @@ def config_to_df(config):
     )
 
     return output_dir, df_config
+
+
+def merge_pdf(pdf_list, output_dir, filename="all_isometrics_z34_stg.pdf"):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = output_dir / filename
+
+    writer = PdfWriter()
+
+    for pdf_path in sorted(pdf_list):
+        reader = PdfReader(pdf_path, strict=False)
+        for page in reader.pages:
+            writer.add_page(page)
+
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+    return output_path
+
+
+
+import pdfplumber
+from tqdm import tqdm
+
+from pypdf import PdfReader, PdfWriter
+
+def pdf_coordinates(pdf_path, output_dir, start=None, end=None):
+
+    pdf_path = Path(pdf_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    txt_file = output_dir / "export_all.txt"
+
+    reader = PdfReader(pdf_path, strict=False)
+    total_pages = len(reader.pages)
+
+    # если не заданы — весь файл
+    if start is None:
+        start = 0
+    if end is None or end > total_pages:
+        end = total_pages
+
+    # header
+    with open(txt_file, "w", encoding="utf-8") as f:
+        f.write("p_i;w_i;text;x0;x1;top;bottom;height\n")
+
+    # extraction
+    with pdfplumber.open(pdf_path) as pdf, \
+            open(txt_file, "a", encoding="utf-8") as f:
+
+        for p_i in tqdm(range(start, end), desc="Pages"):
+            page = pdf.pages[p_i]
+            words = page.extract_words(use_text_flow=True)
+
+            for w_i, w in enumerate(words):
+                f.write(
+                    f'{p_i+1};{w_i};{w["text"]};'
+                    f'{w["x0"]};{w["x1"]};'
+                    f'{w["top"]};{w["bottom"]};'
+                    f'{w["height"]}\n'
+                )
+
+    return txt_file

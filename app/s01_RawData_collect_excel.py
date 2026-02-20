@@ -1,10 +1,10 @@
 import os
+
 import pandas as pd
 import yaml
-from tqdm import tqdm
 
 from _DatabaseManager import DatabaseManager
-from _utils import load_config, config_to_df
+from _utils import load_config, config_to_df, merge_pdf, pdf_coordinates
 
 
 class RawData:
@@ -44,7 +44,12 @@ class RawData:
         self.df_collect_steps = pd.DataFrame({f_name: file_list})
         self.df_collect_steps["index"] = self.df_collect_steps.index
         self.df_collect_steps["dir"] = self.df_collect_steps[f_name].apply(os.path.dirname).str.upper()
-        self.df_collect_steps["file"] = self.df_collect_steps[f_name].apply(os.path.basename).str.upper()
+        self.df_collect_steps["file"] = (
+            self.df_collect_steps[f_name]
+            .apply(os.path.basename)
+            .str.upper()
+            .str.replace(r"\(STAMPED\)\s+\(STAMPED\)", "", regex=True)
+        )
         return None
 
     def filter_by_folder(self):
@@ -135,7 +140,18 @@ class RawData:
 
         df_temp = df_temp[mask_valid]
         df_temp = df_temp.drop(columns=["filter_by_folder_temp"])
+
         self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
+        # self.df_collect_steps = self.df_collect_steps[
+        #     "index",
+        #     "get_file_list",
+        #     # "dir",
+        #     "filter_by_folder",
+        #     "file",
+        #     "filter_by_filename",
+        #     "remove_duplicates_by_filename",
+        #     "filter_by_sheet_names",
+        # ]
 
         return None
 
@@ -194,9 +210,24 @@ class RawData:
 
         ]
         for i, step in enumerate(steps, start=1):
+            print(f"{i}. {step.__name__}: started")
             step()
-            print(f"{i}. {step.__name__}: finished")
+            print(f"__________{i}. {step.__name__}: finished")
 
+
+    # ----- PDF -----
+    def run_pdf_collect(self):
+        steps = [
+            self.get_file_list,
+            self.filter_by_folder,
+            self.filter_by_filename,
+            self.remove_duplicates_by_filename,
+        ]
+
+        for i, step in enumerate(steps, start=1):
+            print(f"{i}. {step.__name__}: started")
+            step()
+            print(f"__________{i}. {step.__name__}: finished")
 
 if __name__ == "__main__":
     config = load_config("config/_config_bom_type1.yaml")
@@ -204,13 +235,40 @@ if __name__ == "__main__":
     print(yaml.dump(config, sort_keys=False, allow_unicode=True))
 
     data = RawData(config)
-    data.run_rawdata()
+    # data.run_rawdata()
+    data.run_pdf_collect()
 
     db = DatabaseManager(config)
-    db.save_to_db(df_config, "S0_config")
-    db.save_to_db(data.df_collect_steps, "S1_Collect_files")
-    db.save_to_db(data.df_combined_files, "S2_Combine_files")
+    # db.save_to_db(df_config, "S0_config")
+    # db.save_to_db(data.df_collect_steps, "S1_Collect_files")
+    # #db.save_to_db(data.df_combined_files, "S2_Combine_files")
+    #
+    # tables_list = db.db_table_list()
+    # # args: table_list, output_dir=None, file_name="db_review.xlsx", df_config=None
+    # db.db_tables_to_excel()
 
-    tables_list = db.db_table_list()
-    # args: table_list, output_dir=None, file_name="db_review.xlsx", df_config=None
-    db.db_tables_to_excel()
+    # pdf_db_steps= db.read_from_db("S1_Collect_files")
+    # pdf_db_steps = pdf_db_steps[pdf_db_steps["remove_duplicates_by_filename"].notna()]
+    # pdf_db_steps = pdf_db_steps[pdf_db_steps["remove_duplicates_by_filename"].astype(str).str.strip() != ""]
+    #
+    # pdf_file_list = (
+    #     pdf_db_steps["get_file_list"]
+    #     .dropna()
+    #     .astype(str)
+    #     .str.strip()
+    # )
+    #
+    # pdf_file_list = pdf_file_list[pdf_file_list != ""].tolist()
+    # print(pdf_file_list)
+    #
+    # merge_pdf(pdf_file_list, output_dir)
+    merge_pdf_path = r"C:\Users\user\Desktop\all_isometrics_z34_stg.pdf"
+    pdf_coordinates(merge_pdf_path, output_dir, start=None, end=None)
+
+
+
+
+
+
+
+    # --- PDF ---

@@ -1,6 +1,9 @@
+tqdm
 pandas
 openpyxl
 xlrd
 PyYAML
 
 sqlalchemy
+pypdf
+pdfplumber
