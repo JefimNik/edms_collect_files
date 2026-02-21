@@ -236,7 +236,7 @@ if __name__ == "__main__":
 
     data = RawData(config)
     # data.run_rawdata()
-    data.run_pdf_collect()
+    # data.run_pdf_collect()
 
     db = DatabaseManager(config)
     # db.save_to_db(df_config, "S0_config")
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     # tables_list = db.db_table_list()
     # # args: table_list, output_dir=None, file_name="db_review.xlsx", df_config=None
     # db.db_tables_to_excel()
-
+    #
     # pdf_db_steps= db.read_from_db("S1_Collect_files")
     # pdf_db_steps = pdf_db_steps[pdf_db_steps["remove_duplicates_by_filename"].notna()]
     # pdf_db_steps = pdf_db_steps[pdf_db_steps["remove_duplicates_by_filename"].astype(str).str.strip() != ""]
@@ -262,8 +262,17 @@ if __name__ == "__main__":
     # print(pdf_file_list)
     #
     # merge_pdf(pdf_file_list, output_dir)
-    merge_pdf_path = r"C:\Users\user\Desktop\all_isometrics_z34_stg.pdf"
-    pdf_coordinates(merge_pdf_path, output_dir, start=None, end=None)
+    merge_pdf_path = r"C:\Users\jniki\Desktop\itub_result\all_isometrics_z34_stg.pdf"
+
+    output_dir=r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf"
+
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all1", start=0, end=2)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all2", start=3, end=4)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all3", start=4, end=5)
+
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all1", start=0, end=10000)
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all2", start=10001, end=20000)
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all3", start=20001, end=29129)
 
 
 

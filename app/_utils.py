@@ -71,13 +71,13 @@ from tqdm import tqdm
 
 from pypdf import PdfReader, PdfWriter
 
-def pdf_coordinates(pdf_path, output_dir, start=None, end=None):
+def pdf_coordinates(pdf_path, output_dir, file_name="pdf_coordinates", start=None, end=None):
 
     pdf_path = Path(pdf_path)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    txt_file = output_dir / "export_all.txt"
+    txt_file = output_dir / f"{file_name}.txt"
 
     reader = PdfReader(pdf_path, strict=False)
     total_pages = len(reader.pages)

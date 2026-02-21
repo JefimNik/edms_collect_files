@@ -24,8 +24,8 @@
 
 
 path_data:
-  root_dir: 'C:\Users\user\Vilesco\DATA_CORE - Документы\Z34\Z34 CDA STG TUY MFZ 1\EDMS_RAW\'
-  output_dir: 'C:\Users\user\Desktop\'
+  root_dir: 'C:\Users\jniki\Desktop\itub'
+  output_dir: 'C:\Users\jniki\Desktop\itub_result'
   db_name: "pipeline.db"
 
 collect_data:
