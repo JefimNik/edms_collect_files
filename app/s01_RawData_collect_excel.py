@@ -262,17 +262,18 @@ if __name__ == "__main__":
     # print(pdf_file_list)
     #
     # merge_pdf(pdf_file_list, output_dir)
-    merge_pdf_path = r"C:\Users\jniki\Desktop\itub_result\all_isometrics_z34_stg.pdf"
+    merge_pdf_path = r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\all_isometrics_z34_stg.pdf"
 
     output_dir=r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf"
 
-    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all1", start=0, end=2)
-    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all2", start=3, end=4)
-    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all3", start=4, end=5)
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all1", start=0, end=2)
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all2", start=3, end=4)
+    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all3", start=4, end=5)
 
-    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all1", start=0, end=10000)
-    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all2", start=10001, end=20000)
-    # pdf_coordinates(merge_pdf_path, output_dir, file_name="export_all3", start=20001, end=29129)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_01", start=0, end=10000)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_02", start=10000, end=20000)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_03", start=20000, end=29000)
+    pdf_coordinates(merge_pdf_path, output_dir, file_name="export_04", start=29000, end=29129)
 
 
 

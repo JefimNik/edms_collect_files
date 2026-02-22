@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 
 def read_source(file_path: str) -> pd.DataFrame:
@@ -91,15 +92,44 @@ def export_csv(df: pd.DataFrame, output_path: str):
 
 # ================== RUN ==================
 
-file_path = r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\export_all.txt"
-output_path = r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\merged.csv"
+# file_path = r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\export_all.txt"
+# output_path = r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\merged.csv"
+#
+# df = read_source(file_path)
+# df_spools = transform_spool(df)
+# df_pages = transform_pages(df)
+# df_merged = merge_data(df_spools, df_pages)
+# df_cleaned = df_clean(df_merged)
+#
+# export_csv(df_cleaned, output_path)
+#
+# print("Done")
 
-df = read_source(file_path)
-df_spools = transform_spool(df)
-df_pages = transform_pages(df)
-df_merged = merge_data(df_spools, df_pages)
-df_cleaned = df_clean(df_merged)
 
-export_csv(df_cleaned, output_path)
+base_dir = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf")
+
+
+input_files = [
+    base_dir / "export_1.txt",
+    base_dir / "export_2.txt",
+    base_dir / "export_3.txt"
+]
+
+all_results = []
+
+for file_path in input_files:
+    df = read_source(file_path)
+    df_spools = transform_spool(df)
+    df_pages = transform_pages(df)
+    df_merged = merge_data(df_spools, df_pages)
+    df_cleaned = df_clean(df_merged)
+
+    all_results.append(df_cleaned)
+
+# объединяем всё в один DataFrame
+final_df = pd.concat(all_results, ignore_index=True)
+
+output_path = base_dir / "merged.csv"
+export_csv(final_df, output_path)
 
 print("Done")

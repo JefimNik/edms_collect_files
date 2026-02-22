@@ -44,5 +44,5 @@ collect_data:
     include_file: [ "pdf" ]  # test
     exclude_file: ["STAMPED" ]
     include_dir: [ ]
-    exclude_dir: [ "_archive" ]
-    engine: "xlrd"
+    exclude_dir: [ "_archive","SPTUNEX" ]
+

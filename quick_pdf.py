@@ -3,9 +3,9 @@ from PyPDF2 import PdfReader, PdfWriter
 from pathlib import Path
 
 # --- пути ---
-csv_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\merged.csv")
+csv_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf\merged.csv")
 pdf_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\all_isometrics_z34_stg.pdf")
-output_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\sorted_output.pdf")
+output_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf\sorted_output.pdf")
 
 # --- читаем CSV ---
 df = pd.read_csv(csv_path, sep=";")
@@ -48,7 +48,7 @@ df_new = df_new.rename(columns={"p_i": "old_p_i"})
 # порядок колонок
 df_new = df_new[["old_p_i", "new_p_i", "text"]]
 
-new_csv_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\sorted_pages.csv")
+new_csv_path = Path(r"D:\Vilesco\DATA_CORE - Documents\_TEMPORARY\split_pdf\sorted_pages.csv")
 df_new.to_csv(new_csv_path, sep=";", index=False)
 
 print("Новый CSV создан:", new_csv_path)
