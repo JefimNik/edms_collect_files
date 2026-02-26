@@ -39,3 +39,5 @@ class DatabaseManager:
             for i in table_list:
                 df = pd.read_sql(f'select * from "{i}"', self.engine)
                 df.to_excel(writer, sheet_name=i[:31], index=False)
+
+if __name__ == "__main__":

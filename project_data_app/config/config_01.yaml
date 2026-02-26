@@ -1,0 +1,25 @@
+path_data:
+  root_dir: 'C:\Users\jniki\Desktop\itub'
+  output_dir: 'C:\Users\jniki\Desktop\itub_result'
+
+name_list:
+  project_db: "project.db"
+
+xls:
+  file_type: "xls from edms"
+  include_file: [ "pdf" ]  # test
+  exclude_file: ["STAMP","SUPPORT"]
+  include_dir: []
+  exclude_dir: [ "_archive" ]
+  sheet_names: [ "Summary", "BOM" ]  # , "Error", "Warning", "Status"
+  sheet_name_to_concat: "BOM"
+  header_row: 4
+  engine: "xlrd"
+
+pdf:
+  file_type: "pdf"
+  include_file: [ "pdf" ]  # test
+  exclude_file: ["STAMPED" ]
+  include_dir: [ ]
+  exclude_dir: [ "_archive","SPTUNEX" ]
+
