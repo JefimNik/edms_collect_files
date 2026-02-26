@@ -1,6 +1,10 @@
 Project Data Foundation
 
 Modules:
+
+    config/
+        config_01.yaml +
+
     core/
         factory.py
             PipelineFactory
@@ -19,16 +23,18 @@ Modules:
             (DfBuilder)
         filesystem_service.py
             FileCollector
-            ExcelReadeWriter
+            ExcelReaderWriter
             PdfExtractor
             PdfBuilder
+        StepLoggerService.py
+            StepLogger
         database_service.py
             DbManager
         config_manager.py
             ConfigManager +
             (PathResolver)
             (RunContext)
-
+        
     
     common/
         utils.py
