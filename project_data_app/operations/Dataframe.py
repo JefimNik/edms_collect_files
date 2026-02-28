@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 
-class DataFiles:
+class DataFrame:
 
     def __init__(self, config):
 

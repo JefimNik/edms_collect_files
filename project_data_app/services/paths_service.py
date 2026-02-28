@@ -1,7 +1,7 @@
 class PathsService:
-    def __init__(self, source, logger, files):
-        self.source = source
-        self.files = files
+    def __init__(self, files, dfs, logger):
+        self.source = files
+        self.files = dfs
         self.logger = logger
 
     def run(self):
@@ -35,7 +35,7 @@ class PathsService:
 
 
 if __name__ == "__main__":
-    from project_data_app.operations.Dataframe import DataFiles
+    from project_data_app.operations.Dataframe import DataFrame
     from project_data_app.operations.Sources import LocalFileSource
     from project_data_app.operations.Config import ConfigManager
     from project_data_app.services.steplogger_service import StepLogger
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     config = ConfigManager("../config", "config_01.yaml", "xls")
     source = LocalFileSource(config)
-    files = DataFiles(config)
+    files = DataFrame(config)
     logger = StepLogger()
 
     # -------- RUN --------
