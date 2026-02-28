@@ -25,6 +25,8 @@ class ConfigManager:
 
         # ---Config variables---
         self.file_type = self.section.get("file_type", "")
+        self.include_ext = self.section.get("include_ext", [])
+        self.exclude_ext = self.section.get("exclude_ext", [])
         self.include_file = self.section.get("include_file", [])
         self.exclude_file = self.section.get("exclude_file", [])
         self.include_dir = self.section.get("include_dir", [])

@@ -1,5 +1,5 @@
 path_data:
-  root_dir: 'D:\Vilesco\DATA_CORE - Documents\Z34\Z34 CDA STG TUY MFZ 1\EDMS_RAW_2025-02-25\Z34 Released\DOC0000157065,TUVFE0524B,D4'
+  root_dir: 'C:\Users\jniki\Desktop\source'
   output_dir: 'C:\Users\jniki\Desktop\result'
 
 name_list:
@@ -7,10 +7,12 @@ name_list:
 
 xls:
   file_type: "xls from edms"
-  include_file: [ "pdf" ]  # test
-  exclude_file: ["STAMP","SUPPORT"]
+  include_ext: [".xls"]
+  exclude_ext: []
+  include_file: [ "BOM","RPT" ]
+  exclude_file: []
   include_dir: []
-  exclude_dir: [ "_archive" ]
+  exclude_dir: [ "_archive", "Y34 Released" ]
   sheet_names: [ "Summary", "BOM" ]  # , "Error", "Warning", "Status"
   sheet_name_to_concat: "BOM"
   header_row: 4

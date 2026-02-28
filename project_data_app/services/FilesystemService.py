@@ -1,11 +1,17 @@
 import pandas as pd
+from pathlib import Path
 
 
 class FilesystemService:
 
     def __init__(self, config):
+
+        self.output_dir = config.output_dir
+
         self.include_dir = config.include_dir
         self.exclude_dir = config.exclude_dir
+        self.include_ext = config.include_ext
+        self.exclude_ext = config.exclude_ext
         self.include_file = config.include_file
         self.exclude_file = config.exclude_file
         self.sheet_names = config.sheet_names
@@ -37,6 +43,18 @@ class FilesystemService:
 
         return df
 
+    def filter_by_extension(self, df):
+        df = df.copy()
+
+        df["ext"] = df["filename"].str.split(".").str[-1].str.upper()
+        if self.include_ext:
+            df = df[df["ext"].isin([x.upper().lstrip(".") for x in self.include_ext])]
+
+        if self.exclude_ext:
+            df = df[~df["ext"].isin([x.upper().lstrip(".") for x in self.exclude_ext])]
+
+        return df
+
     def filter_by_filename(self, df):
         include_file = [x.upper() for x in self.include_file]
         exclude_file = [x.upper() for x in self.exclude_file]
@@ -54,40 +72,31 @@ class FilesystemService:
 
     def remove_duplicates_by_filename(self, df):
         df = df.copy()
-        df = df.drop_duplicates(subset=["row_id"])
+        df = df.drop_duplicates(subset=["filename"])
         return df
 
     def filter_by_sheet_names(self, df):
-        df = df.copy()
-        mask_valid = pd.Series(False, index=df.index)
+        valid_paths = []
 
-        for id, row in df.iterrows():
-            folder_path = row["dir"]
-            file_name = row["filename"]
-            if pd.isna(folder_path) or pd.isna(file_name):
-                continue
-            full_path = os.path.join(folder_path, file_name)
+        for full_path in df["filepath"].dropna().unique():
 
             try:
                 xls = pd.ExcelFile(full_path, engine=self.engine)
+
                 if all(sheet in xls.sheet_names for sheet in self.sheet_names):
-                    mask_valid.loc[id] = True
+                    valid_paths.append(full_path)
+
             except Exception:
-                mask_valid.loc[id] = False
+                continue
 
-        df_temp = df_temp[mask_valid]
-        df_temp = df_temp.drop(columns=["filter_by_folder_temp"])
+        df = df[df["filepath"].isin(valid_paths)]
+        return df
 
-        self.df_collect_steps = self.df_collect_steps.merge(df_temp, left_on="index", right_on="index", how="left")
-        # self.df_collect_steps = self.df_collect_steps[
-        #     "index",
-        #     "get_file_list",
-        #     # "dir",
-        #     "filter_by_folder",
-        #     "file",
-        #     "filter_by_filename",
-        #     "remove_duplicates_by_filename",
-        #     "filter_by_sheet_names",
-        # ]
+    def df_to_excel(self, df, file_name):
+        if df.empty:
+            df = pd.DataFrame()
 
-        return None
+        df = df.fillna(" ")  # only for steps!
+        output_path = Path(self.output_dir) / f"{file_name}.xlsx"
+        print(output_path)
+        df.to_excel(output_path, index=False)
