@@ -1,5 +1,5 @@
-from operations.Filesystem import FilesystemService
-from operations.Dataframe import LocalFileSource
+from operations.Dataframe import DataFiles
+from operations.Sources import LocalFileSource
 from operations.Config import ConfigManager
 from services.steplogger_service import StepLogger
 from services.paths_service import PathsService
@@ -7,9 +7,9 @@ from services.paths_service import PathsService
 if __name__ == "__main__":
 
     # -------- INIT --------
-    config = ConfigManager("config_01", "xls")
+    config = ConfigManager("config", "config_01", "xls")
     source = LocalFileSource(config)
-    files = FilesystemService(config)
+    files = DataFiles(config)
     logger = StepLogger()
 
     # -------- RUN --------

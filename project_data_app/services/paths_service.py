@@ -32,3 +32,21 @@ class PathsService:
         print("<<PathsService finished>>")
 
         return df_paths["filepath"].tolist()
+
+
+if __name__ == "__main__":
+    from project_data_app.operations.Dataframe import DataFiles
+    from project_data_app.operations.Sources import LocalFileSource
+    from project_data_app.operations.Config import ConfigManager
+    from project_data_app.services.steplogger_service import StepLogger
+
+    # -------- INIT --------
+
+    config = ConfigManager("../config", "config_01.yaml", "xls")
+    source = LocalFileSource(config)
+    files = DataFiles(config)
+    logger = StepLogger()
+
+    # -------- RUN --------
+    s01_paths = PathsService(source, logger, files)
+    s01_paths.run()

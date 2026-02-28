@@ -3,9 +3,9 @@ from pathlib import Path
 
 
 class ConfigManager:
-    def __init__(self, config_name, config_section):
+    def __init__(self, config_folder, config_name, config_section):
         # ---Class variables---
-        self.config_folder = Path("config")
+        self.config_folder = Path(config_folder)
 
         if not config_name.endswith(".yaml"):
             config_name = f"{config_name}.yaml"
