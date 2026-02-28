@@ -6,19 +6,23 @@ from services.FilesystemService import FilesystemService
 from sources.LocalfilesSource import LocalFileSource
 from services.ConfigManager import ConfigManager
 
-
 if __name__ == "__main__":
+
+    # fabric
     config = ConfigManager("config_01", "xls")
-    print(config.show_config())
+    source = LocalFileSource(config)
+    files = FilesystemService(config)
+    logger =
 
-    lfs = LocalFileSource(config)
-    file_list = lfs.get_files()
+    # pipeline to transform and  filter file list
+    file_list = source.get_files()
 
-    print(len(file_list))
+    df_01 = files.os_file_paths_to_df(file_list)
+    df_02 = files.filter_by_folder(df_01)
+    df_03 = files.filter_by_filename(df_02)
+    df_04 = files.remove_duplicates_by_filename(df_03)
 
-    fc = FilesystemService(config)
-    df = fc.make_df_from_list(file_list)
 
-    print(df.info)
+
 
 

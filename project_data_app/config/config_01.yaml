@@ -1,6 +1,6 @@
 path_data:
   root_dir: 'D:\Vilesco\DATA_CORE - Documents\Z34\Z34 CDA STG TUY MFZ 1\EDMS_RAW_2025-02-25\Z34 Released\DOC0000157065,TUVFE0524B,D4'
-  output_dir: 'C:\Users\jniki\Desktop\itub_result'
+  output_dir: 'C:\Users\jniki\Desktop\result'
 
 name_list:
   project_db: "project.db"
