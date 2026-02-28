@@ -1,25 +1,24 @@
-import os
-import pandas as pd
-import yaml
-
 from services.FilesystemService import FilesystemService
 from sources.LocalfilesSource import LocalFileSource
 from services.ConfigManager import ConfigManager
 from services.StepLoggerService import StepLogger
+from pipelines.paths_pipeline import PathsPipeline
 
 if __name__ == "__main__":
-    # fabric
+    # -------- INIT --------
     config = ConfigManager("config_01", "xls")
     source = LocalFileSource(config)
     files = FilesystemService(config)
     logger = StepLogger()
 
-    # pipeline to transform and  filter file list
+    paths_pipeline = PathsPipeline(source, logger, files)
+
+    # -------- COLLECT --------
     file_list = source.get_files()
+    df_paths = files.os_file_paths_to_df(file_list)
+    logger.update_log_df(df_paths, "01")
 
-    df = files.os_file_paths_to_df(file_list)
-    logger.update_log_df(df, "01")
-
+    # -------- FILTER FILE PATHS --------
     steps = [
         (files.filter_by_folder, ["dir"], "02"),
         (files.filter_by_extension, ["filename"], "03"),
@@ -29,8 +28,13 @@ if __name__ == "__main__":
     ]
 
     for func, cols, step_name in steps:
-        df = func(df)
-        logger.update_log_df(df, step_name, cols)
-        print(f"{func.__name__}: {df.shape[0]}")
+        df_paths = func(df_paths)
+        logger.update_log_df(df_paths, step_name, cols)
+        print(f"{step_name} {func.__name__}: {df_paths.shape[0]}")
 
+    # -------- RESULT --------
+    filtered_file_paths = df_paths["filepath"].tolist()
     files.df_to_excel(logger.df, "steps")
+
+
+

@@ -98,5 +98,4 @@ class FilesystemService:
 
         df = df.fillna(" ")  # only for steps!
         output_path = Path(self.output_dir) / f"{file_name}.xlsx"
-        print(output_path)
         df.to_excel(output_path, index=False)
