@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from project_data_app.services.steplogger_service import StepLogger
     from project_data_app.processors.LocalPathsCollector import LocalPathsCollector
     from project_data_app.core.config import ConfigManager
-    from project_data_app.operations.Bom01 import AddBomColumns, FilterBom
+    from project_data_app.operations.Bom01 import AddBomColumns, FilterBom, BomMaterialProcessor
 
 
 class Bom01Pipeline:
@@ -23,7 +23,9 @@ class Bom01Pipeline:
                  add_cols: Type[AddBomColumns],
                  filter_cols: Type[FilterBom],
                  paths_collector: LocalPathsCollector,
-                 location_extractor
+                 location_extractor,
+                 PrefabSpoolBuilder
+
     ):
         self.config = config
         self.files = files
@@ -36,6 +38,8 @@ class Bom01Pipeline:
 
         self.paths_collector = paths_collector
         self.location_extractor = location_extractor
+        self.PrefabSpoolBuilder = PrefabSpoolBuilder
+
 
     def run(self):
         s01_paths = self.paths_collector.run_local_files()
@@ -57,3 +61,11 @@ class Bom01Pipeline:
         s05_bom_locations = self.location_extractor(s04_bom_filter).run()
         self.db.save_to_db(s05_bom_locations, "bom_locations")
         self.excel.df_to_excel(s05_bom_locations, file_name="steps", sheet_name="bom_locations")
+
+        s06_steel_prefab = self.PrefabSpoolBuilder(s04_bom_filter).run()
+        self.db.save_to_db(s06_steel_prefab, "steel_prefab")
+        self.excel.df_to_excel(s06_steel_prefab, file_name="steps", sheet_name="steel_prefab")
+
+
+
+
