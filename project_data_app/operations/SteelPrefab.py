@@ -15,16 +15,55 @@ class PrefabSpoolBuilder:
         #     "Welded",
         #     "Welded / Screwed",
         # }
-        self.valid_piping_specs = {
-            "3A2391",
-            "3A4390",
-            "3Z3390",
-            "3Z3392",
-            "3Z3395",
-            "3Z3397",
-            "3Z3497",
-            "3Z3391",
-            "3Z3396",
+        self.spec_connection_map = {
+            "3A2391": "Grooved coupling",
+            "2A5610": "Welded",
+            "2A9010": "Welded",
+            "3A9110": "Welded",
+            "2A2430": "Welded",
+            "3A2310": "Welded",
+            "3A2420": "Welded",
+            "3Z6050": "Welded",
+            "1A5020": "Welded",
+            "2A5020": "Welded",
+            "3A5310": "Welded",
+            "3A4310": "Welded",
+            "3A4390": "Grooved coupling",
+            "3A7030": "Welded",
+            "3A0116": "Welded",
+            "3Z8227": "Welded",
+            "2Z8420": "Welded",
+            "3A4130": "Welded",
+            "3Z3320": "Welded",
+            "3Z8030": "Welded",
+            "3Z3310": "Welded",
+            "3A8620": "Welded",
+            "2A7420": "Welded",
+            "1A4910": "Welded",
+            "2A4010": "Welded",
+            "3Z3330": "Welded",
+            "3Z3390": "Grooved coupling",
+            "3Z3392": "Grooved coupling",
+            "3Z3395": "Grooved coupling",
+            "3Z3397": "Grooved coupling",
+            "3Z3497": "Grooved coupling",
+            "2A6110": "Welded",
+            "3A2810": "Welded",
+            "3Z3510": "Welded",
+            "3Z3391": "Grooved coupling",
+            "3Z3396": "Grooved coupling",
+            "3A3330": "Welded",
+            "3A3010": "Welded",
+            "3A2520": "Welded",
+            "3A7040": "Welded",
+            "3Z7040": "Welded",
+            "3Z7116": "Welded",
+            "3Z7130": "Welded",
+            "3A2530": "Welded",
+            "2A1030": "Welded",
+            "2A1210": "Welded",
+            "3A1010": "Welded",
+            "3A2730": "Welded",
         }
 
     # ==========================================================
@@ -64,9 +103,9 @@ class PrefabSpoolBuilder:
         # FAB_TAG must exist
         df = df[df["FAB_TAG"].notna() & (df["FAB_TAG"] != "")]
 
-        # Connections filter
-        if self.valid_piping_specs:
-            df = df[df["SPEC_"].isin(self.valid_piping_specs)]
+        # Spec filter
+        # if self.valid_piping_specs:
+        #     df = df[df["SPEC_"].isin(self.valid_piping_specs)]
 
         return df
 
@@ -91,22 +130,19 @@ class PrefabSpoolBuilder:
 
     def _format_output(self, df: pd.DataFrame) -> pd.DataFrame:
 
-        # CATEGORY
-        df["CATEGORY"] = df["SPEC_"] + " " + df["SYSTEM"]
+        # Add connections
+        df["Connections"] = df["SPEC_"].map(self.spec_connection_map)
 
-        # # Replace naming
-        # df["CATEGORY"] = df["CATEGORY"].replace(
-        #     "Grooved coupling ILT",
-        #     "GROOVE ILT"
-        # )
+        # CATEGORY
+        df["CATEGORY"] = df["Connections"] + " " + df["SYSTEM"]
 
         # Rename
         df = df.rename(columns={"FAB_TAG": "SPOOL"})
 
         # Sort like Power Query
         df = df.sort_values(
-            by=["SPEC_", "SYSTEM", "DN_MIN", "SPOOL"],
-            ascending=[False, True, True, True],
+            by=["CATEGORY", "DN_MIN", "SPOOL"],
+            ascending=[False, True, True],
         )
 
         # Remove helper columns
