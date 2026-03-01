@@ -1,4 +1,4 @@
-class LocalPathsService:
+class LocalPathsCollector:
     def __init__(self, files, dfs, logger):
         self.files = files
         self.dfs = dfs

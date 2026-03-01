@@ -7,7 +7,7 @@ from project_data_app.services.excel_service import Excel
 from project_data_app.services.source_data_service import LocalFileSource
 from project_data_app.services.steplogger_service import StepLogger
 
-
+from project_data_app.pipelines.Bom01_pipeline import Bom01Pipeline
 
 
 class PipelineFactory:
@@ -16,12 +16,11 @@ class PipelineFactory:
         self.config = ConfigManager(config_folder, config_name, config_type)
 
     def build_bom_pipeline(self):
-        # shared services
         files = LocalFileSource(self.config)
         paths = PathList(self.config)
         excel = Excel(self.config)
         db = DatabaseManager(self.config)
         logger = StepLogger()
 
-        return AddBomColumns(df
-                             )
+        return Bom01Pipeline(config=self.config, files=files, paths=paths, excel=excel,
+                             db=db, logger=logger, add_cols=AddBomColumns, filter_cols=FilterBom)

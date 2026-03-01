@@ -2,7 +2,7 @@ from operations.PathList import PathList
 from project_data_app.services.source_data_service import LocalFileSource
 from project_data_app.core.config import ConfigManager
 from services.steplogger_service import StepLogger
-from project_data_app.processors.local_paths_proc import LocalPathsService
+from project_data_app.processors.LocalPathsCollector import LocalPathsCollector
 from project_data_app.services.database_service import DatabaseManager
 from project_data_app.operations.Bom01 import AddBomColumns, FilterBom
 from project_data_app.services.excel_service import Excel
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     logger = StepLogger()
 
     # -------- RUN --------
-    s01_paths = LocalPathsService(files, paths, logger).run_local_files()
+    s01_paths = LocalPathsCollector(files, paths, logger).run_local_files()
     db.save_to_db(logger.df, "paths")
     excel.df_to_excel(logger.df, "steps", sheet_name="paths")
 
