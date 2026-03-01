@@ -11,17 +11,17 @@ if __name__ == "__main__":
     # -------- INIT --------
     config = ConfigManager("config", "config_01", "xls")
     files = LocalFileSource(config)
-    dfs = PathList(config)
+    paths = PathList(config)
     excel = Excel(config)
     db = DatabaseManager(config)
     logger = StepLogger()
 
     # -------- RUN --------
-    s01_paths = LocalPathsService(files, dfs, logger).run_local_files()
+    s01_paths = LocalPathsService(files, paths, logger).run_local_files()
     db.save_to_db(logger.df, "paths")
     excel.df_to_excel(logger.df, "steps", sheet_name="paths")
 
-    s02_raw_bom = files.collect_exel_to_df(s01_paths)
+    s02_raw_bom = LocalFileSource(config).collect_exel_to_df(s01_paths)
     db.save_to_db(s02_raw_bom, "raw_bom")
     excel.df_to_excel(s02_raw_bom, file_name="steps", sheet_name="raw_bom")
 

@@ -1,11 +1,13 @@
-from project_data_app.operations.PathList import PathList
-from project_data_app.services.source_data_service import LocalFileSource
 from project_data_app.core.config import ConfigManager
-from project_data_app.services.steplogger_service import StepLogger
+from project_data_app.operations.Bom01 import AddBomColumns, FilterBom
+from project_data_app.operations.PathList import PathList
 from project_data_app.services.database_service import DatabaseManager
 from project_data_app.services.excel_service import Excel
+# from project_data_app.services.pdf_service import PDF
+from project_data_app.services.source_data_service import LocalFileSource
+from project_data_app.services.steplogger_service import StepLogger
 
-from project_data_app.operations.Bom01 import AddBomColumns
+
 
 
 class PipelineFactory:
@@ -14,7 +16,6 @@ class PipelineFactory:
         self.config = ConfigManager(config_folder, config_name, config_type)
 
     def build_bom_pipeline(self):
-
         # shared services
         files = LocalFileSource(self.config)
         paths = PathList(self.config)
@@ -23,4 +24,4 @@ class PipelineFactory:
         logger = StepLogger()
 
         return AddBomColumns(df
-        )
+                             )
