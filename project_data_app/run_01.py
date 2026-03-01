@@ -1,11 +1,11 @@
 from operations.PathList import PathList
-from operations.Sources import LocalFileSource
-from operations.Config import ConfigManager
+from project_data_app.services.source_data_service import LocalFileSource
+from project_data_app.core.config import ConfigManager
 from services.steplogger_service import StepLogger
-from services.local_paths_service import LocalPathsService
-from operations.Database import DatabaseManager
-from services.bom_service import AddBomColumns, FilterBom
-from operations.Excel import Excel
+from project_data_app.processors.local_paths_proc import LocalPathsService
+from project_data_app.services.database_service import DatabaseManager
+from project_data_app.operations.Bom01 import AddBomColumns, FilterBom
+from project_data_app.services.excel_service import Excel
 
 if __name__ == "__main__":
     # -------- INIT --------

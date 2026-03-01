@@ -33,8 +33,8 @@ class LocalPathsService:
 
 if __name__ == "__main__":
     from project_data_app.operations.PathList import PathList
-    from project_data_app.operations.Sources import LocalFileSource
-    from project_data_app.operations.Config import ConfigManager
+    from project_data_app.services.source_data_service import LocalFileSource
+    from project_data_app.core.config import ConfigManager
     from project_data_app.services.steplogger_service import StepLogger
 
     # -------- INIT --------

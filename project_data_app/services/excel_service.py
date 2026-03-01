@@ -7,7 +7,6 @@ class Excel:
     def __init__(self, config):
 
         self.output_dir = config.output_dir
-        #self.engine = config.engine
 
     def df_to_excel(self, df, file_name, sheet_name):
         if df.empty:
