@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import re
 
 
 class AddBomColumns:
@@ -137,3 +138,116 @@ class FilterBom:
     def _filter_system(self):
         if self.system:
             self.df = self.df[self.df["FUNCTION"].isin(self.system)]
+
+
+class LocationExtractor:
+    def __init__(self, df, replacements=None):
+        self.df = df.copy()
+        self.replacements = replacements or [".", " ", "-"]
+
+    # =========================
+    # PUBLIC
+    # =========================
+    def run(self):
+
+        df = self._prepare_base(self.df)
+        df = self._split_tokens(df)
+        df = self._classify(df)
+        return self._final_cleanup(df)
+
+    # =========================
+    # INTERNAL STEPS
+    # =========================
+
+    def _prepare_base(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = df[["__FILENAME__", "LOT"]].copy()
+        df["__FILENAME__"] = df["__FILENAME__"].astype(str)
+        df["LOT"] = df["LOT"].astype(str)
+
+        df["Merged"] = df["__FILENAME__"] + "_" + df["LOT"]
+        df = df[["Merged"]].drop_duplicates()
+
+        for ch in self.replacements:
+            df["Merged"] = df["Merged"].str.replace(ch, "_", regex=False)
+
+        return df
+
+    def _split_tokens(self, df: pd.DataFrame) -> pd.DataFrame:
+        # split by "_"
+        df = df.assign(Merged=df["Merged"].str.split("_")).explode("Merged")
+        df["Merged"] = df["Merged"].astype(str)
+
+        # custom split (digits after position >=4)
+        df["CustomSplit"] = df["Merged"].apply(self._custom_split)
+        df = df.explode("CustomSplit")
+
+        df = df[["CustomSplit"]].drop_duplicates()
+
+        return df
+
+    def _custom_split(self, txt: str):
+        match = re.search(r"\d", txt)
+        if match and match.start() >= 4:
+            pos = match.start()
+            return [txt[:pos], txt[pos:]]
+        return [txt]
+
+    def _classify(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["Category"] = df["CustomSplit"].apply(self._categorize)
+        df = df[df["Category"] != "delete"]
+
+        df = df.rename(columns={"CustomSplit": "Location"})
+        return df
+
+    def _categorize(self, val: str) -> str:
+        val = str(val)
+        length = len(val)
+
+        first_char = val[:1]
+        first_two = val[:2]
+        first_three = val[:3]
+        fourth_char = val[3:4] if length >= 4 else ""
+
+        if first_char == "0":
+            return "BLOCK"
+        elif length == 3 and val.isdigit():
+            return "LOT"
+        elif (
+                length >= 4
+                and first_three.isdigit()
+                and not fourth_char.isdigit()
+        ):
+            return "ACR"
+        elif first_two == "99":
+            return "VAT"
+        elif length == 4 and val.isdigit() and first_two != "99":
+            return "PANEL"
+        else:
+            return "delete"
+
+    # def _merge_locations(
+    #         self,
+    #         df_main: pd.DataFrame,
+    #         df_locations_t: pd.DataFrame,
+    # ) -> pd.DataFrame:
+    #
+    #     df_combined = pd.concat([df_main, df_locations_t], ignore_index=True)
+    #
+    #     # приоритет новых сверху (как в PQ)
+    #     df_combined["Index"] = range(1, len(df_combined) + 1)
+    #     df_combined = df_combined.sort_values("Index", ascending=False)
+    #
+    #     df_combined = df_combined.drop_duplicates(subset=["Location"])
+    #
+    #     return df_combined
+
+    def _final_cleanup(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = df[["Location", "Category"]].copy()
+
+        df = df.dropna(subset=["Location"])
+        df = df[df["Location"] != ""]
+
+        df["Location"] = df["Location"].astype(str)
+        df["Category"] = df["Category"].astype(str)
+
+        return df

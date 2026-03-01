@@ -22,8 +22,8 @@ class Bom01Pipeline:
                  logger: StepLogger,
                  add_cols: Type[AddBomColumns],
                  filter_cols: Type[FilterBom],
-
-                 paths_collector: LocalPathsCollector
+                 paths_collector: LocalPathsCollector,
+                 location_extractor
     ):
         self.config = config
         self.files = files
@@ -35,6 +35,7 @@ class Bom01Pipeline:
         self.filter_cols = filter_cols
 
         self.paths_collector = paths_collector
+        self.location_extractor = location_extractor
 
     def run(self):
         s01_paths = self.paths_collector.run_local_files()
@@ -52,3 +53,7 @@ class Bom01Pipeline:
         s04_bom_filter = self.filter_cols(s03_bom_add_columns, self.config).run()
         self.db.save_to_db(s04_bom_filter, "bom_filter")
         self.excel.df_to_excel(s04_bom_filter, file_name="steps", sheet_name="filtered")
+
+        s05_bom_locations = self.location_extractor(s04_bom_filter).run()
+        self.db.save_to_db(s05_bom_locations, "bom_locations")
+        self.excel.df_to_excel(s05_bom_locations, file_name="steps", sheet_name="bom_locations")

@@ -1,5 +1,5 @@
 from project_data_app.core.config import ConfigManager
-from project_data_app.operations.Bom01 import AddBomColumns, FilterBom
+from project_data_app.operations.Bom01 import AddBomColumns, FilterBom, LocationExtractor
 from project_data_app.operations.PathList import PathList
 from project_data_app.services.database_service import DatabaseManager
 from project_data_app.services.excel_service import Excel
@@ -28,4 +28,6 @@ class PipelineFactory:
 
         return Bom01Pipeline(config=self.config, files=files, paths=paths, excel=excel,
                              db=db, logger=logger, add_cols=AddBomColumns, filter_cols=FilterBom,
-                             paths_collector= paths_collector)
+                             paths_collector= paths_collector, location_extractor=LocationExtractor)
+
+
