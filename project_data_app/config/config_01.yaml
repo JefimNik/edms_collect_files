@@ -6,10 +6,6 @@ name_list:
   project_db: "project.db"
 
 contract_data:
-#  ship: ["Y34","Z34"]
-#  mfz: ["1"]
-#  stage_bom: ["5", "7"]
-#  system: ["NLO", "QAB", "QQQ", "TJT", "VFC", "VFE"]
   ship: []
   mfz: []
   stage_bom: []

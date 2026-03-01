@@ -2,82 +2,54 @@ import pandas as pd
 import re
 
 
-class SteelPrefab:
+class PlasticPrefab:
     def __init__(self, df):
         self.df = df
         self.valid_specs = {
-            "A",
-            "Z",
+            "P",
         }
 
-        # self.valid_connections = valid_connections or {
-        #     "Grooved coupling",
-        #     "Welded",
-        #     "Welded / Screwed",
-        # }
         self.spec_connection_map = {
-            "3A2391": "Grooved coupling",
-            "2A5610": "Welded",
-            "2A9010": "Welded",
-            "3A9110": "Welded",
-            "2A2430": "Welded",
-            "3A2310": "Welded",
-            "3A2420": "Welded",
-            "3Z6050": "Welded",
-            "1A5020": "Welded",
-            "2A5020": "Welded",
-            "3A5310": "Welded",
-            "3A4310": "Welded",
-            "3A4390": "Grooved coupling",
-            "3A7030": "Welded",
-            "3A0116": "Welded",
-            "3Z8227": "Welded",
-            "2Z8420": "Welded",
-            "3A4130": "Welded",
-            "3Z3320": "Welded",
-            "3Z8030": "Welded",
-            "3Z3310": "Welded",
-            "3A8620": "Welded",
-            "2A7420": "Welded",
-            "1A4910": "Welded",
-            "2A4010": "Welded",
-            "3Z3330": "Welded",
-            "3Z3390": "Grooved coupling",
-            "3Z3392": "Grooved coupling",
-            "3Z3395": "Grooved coupling",
-            "3Z3397": "Grooved coupling",
-            "3Z3497": "Grooved coupling",
-            "2A6110": "Welded",
-            "3A2810": "Welded",
-            "3Z3510": "Welded",
-            "3Z3391": "Grooved coupling",
-            "3Z3396": "Grooved coupling",
-            "3A3330": "Welded",
-            "3A3010": "Welded",
-            "3A2520": "Welded",
-            "3A7040": "Welded",
-            "3Z7040": "Welded",
-            "3Z7116": "Welded",
-            "3Z7130": "Welded",
-            "3A2530": "Welded",
-            "2A1030": "Welded",
-            "2A1210": "Welded",
-            "3A1010": "Welded",
-            "3A2730": "Welded",
+            "3P2090": "Polypropylene (PP-R)",
+            "3P2130": "Polybutylene (PB) Multi-layer",
+            "3P3230": "PVC",
+            "3P3300": "Polyethylene (PE)",
+            "3P3320": "Polyethylene (PE) Multi-layer",
+            "3P8410": "PVC",
+            "3P3210": "PVC",
+            "3P8110": "PVC",
+            "3P8450": "Polyethylene (PE)",
+            "3P3316": "Polyethylene (PE)",
+            "3P8150": "Polyethylene (PE)",
+            "3P8151": "Polyethylene (PE)",
+            "3P8515": "Polyethylene (PE)",
+            "3P3370": "Polyethylene (PE) Multi-layer",
         }
 
     # ==========================================================
     # PUBLIC
     # ==========================================================
 
+    # def run(self):
+    #
+    #     df = self._filter_base(self.df)
+    #     df = self._group(df)
+    #     df = self._format_output(df)
+    #
+    #     return df
+
     def run(self):
 
         df = self._filter_base(self.df)
+        print("After filter:", df.shape)
+
         df = self._group(df)
+        print("After group:", df.shape)
+
         df = self._format_output(df)
+        print("After format:", df.shape)
 
         return df
-
     # ==========================================================
     # STEPS
     # ==========================================================
@@ -85,11 +57,6 @@ class SteelPrefab:
     def _filter_base(self, df: pd.DataFrame) -> pd.DataFrame:
 
         df = df[["FUNCTION", "INPUT1", "FAB_TAG", "SPEC_"]].copy()
-
-        # SYSTEM column
-        df["SYSTEM"] = df["FUNCTION"].apply(
-            lambda x: "ILT" if x == "ILT" else "OTHER"
-        )
 
         # -------- PARTIAL SPEC FILTER --------
         if self.valid_specs:
@@ -103,10 +70,6 @@ class SteelPrefab:
         # FAB_TAG must exist
         df = df[df["FAB_TAG"].notna() & (df["FAB_TAG"] != "")]
 
-        # Spec filter
-        # if self.valid_piping_specs:
-        #     df = df[df["SPEC_"].isin(self.valid_piping_specs)]
-
         return df
 
     # ----------------------------------------------------------
@@ -114,7 +77,7 @@ class SteelPrefab:
     def _group(self, df: pd.DataFrame) -> pd.DataFrame:
 
         grouped = (
-            df.groupby(["SPEC_", "SYSTEM", "FAB_TAG"])
+            df.groupby(["SPEC_", "FAB_TAG"])
             .agg(
                 DN_MIN=("INPUT1", "min"),
                 DN=("INPUT1", lambda x: " ".join(
@@ -133,8 +96,15 @@ class SteelPrefab:
         # Add connections
         df["Connections"] = df["SPEC_"].map(self.spec_connection_map)
 
+        # filter ifit
+        df = df[
+            (df["DN_MIN"] > 25) |
+            ((df["DN_MIN"] <= 25) &
+             df["Connections"].str.contains("Multi-layer", na=False))
+            ]
+
         # CATEGORY
-        df["CATEGORY"] = df["Connections"] + " " + df["SYSTEM"]
+        df["CATEGORY"] = df["Connections"]
 
         # Rename
         df = df.rename(columns={"FAB_TAG": "SPOOL"})
@@ -146,7 +116,7 @@ class SteelPrefab:
         )
 
         # Remove helper columns
-        df = df.drop(columns=["SPEC_", "SYSTEM", "DN_MIN"])
+        df = df.drop(columns=["SPEC_", "DN_MIN"])
 
         # Trim DN
         df["DN"] = df["DN"].astype(str).str.strip()

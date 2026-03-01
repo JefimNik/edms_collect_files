@@ -1,7 +1,8 @@
 from project_data_app.core.config import ConfigManager
 from project_data_app.operations.Bom01 import AddBomColumns, FilterBom, LocationExtractor
 from project_data_app.operations.PathList import PathList
-from project_data_app.operations.SteelPrefab import PrefabSpoolBuilder
+from project_data_app.operations.SteelPrefab import SteelPrefab
+from project_data_app.operations.PlasticPrefab import PlasticPrefab
 from project_data_app.services.database_service import DatabaseManager
 from project_data_app.services.excel_service import Excel
 # from project_data_app.services.pdf_service import PDF
@@ -31,6 +32,6 @@ class PipelineFactory:
         return Bom01Pipeline(config=self.config, files=files, paths=paths, excel=excel,
                              db=db, logger=logger, add_cols=AddBomColumns, filter_cols=FilterBom,
                              paths_collector= paths_collector, location_extractor=LocationExtractor,
-                             PrefabSpoolBuilder=PrefabSpoolBuilder)
+                             steelprefab=SteelPrefab, plasticprefab=PlasticPrefab)
 
 

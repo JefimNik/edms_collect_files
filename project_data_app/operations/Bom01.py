@@ -4,10 +4,6 @@ import re
 
 
 class AddBomColumns:
-    """
-    Adds derived columns to BOM dataframe.
-    """
-
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
 
@@ -224,22 +220,6 @@ class LocationExtractor:
             return "PANEL"
         else:
             return "delete"
-
-    # def _merge_locations(
-    #         self,
-    #         df_main: pd.DataFrame,
-    #         df_locations_t: pd.DataFrame,
-    # ) -> pd.DataFrame:
-    #
-    #     df_combined = pd.concat([df_main, df_locations_t], ignore_index=True)
-    #
-    #     # приоритет новых сверху (как в PQ)
-    #     df_combined["Index"] = range(1, len(df_combined) + 1)
-    #     df_combined = df_combined.sort_values("Index", ascending=False)
-    #
-    #     df_combined = df_combined.drop_duplicates(subset=["Location"])
-    #
-    #     return df_combined
 
     def _final_cleanup(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df[["Location", "Category"]].copy()
