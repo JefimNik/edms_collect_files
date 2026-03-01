@@ -1,10 +1,10 @@
-class PathsService:
+class LocalPathsService:
     def __init__(self, files, dfs, logger):
         self.files = files
         self.dfs = dfs
         self.logger = logger
 
-    def run(self):
+    def run_local_files(self):
         print("\n<<PathsService start>>")
         # -------- GET FILE PATHS --------
         file_list = self.files.get_files()
@@ -32,7 +32,7 @@ class PathsService:
 
 
 if __name__ == "__main__":
-    from project_data_app.operations.Dataframe import DataFrame
+    from project_data_app.operations.PathList import PathList
     from project_data_app.operations.Sources import LocalFileSource
     from project_data_app.operations.Config import ConfigManager
     from project_data_app.services.steplogger_service import StepLogger
@@ -40,10 +40,11 @@ if __name__ == "__main__":
     # -------- INIT --------
 
     config = ConfigManager("../config", "config_01.yaml", "xls")
-    source = LocalFileSource(config)
-    files = DataFrame(config)
+    files = LocalFileSource(config)
+    dfs = PathList(config)
     logger = StepLogger()
 
     # -------- RUN --------
-    s01_paths = PathsService(source, logger, files)
-    s01_paths.run()
+    s01_paths = LocalPathsService(files, dfs, logger).run_local_files()
+    dfs.df_to_excel(logger.df, "steps", sheet_name="paths")
+
