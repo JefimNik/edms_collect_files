@@ -23,6 +23,12 @@ class ConfigManager:
         # ---Names from config---
         self.project_db = self.config["name_list"]["project_db"]
 
+        # ---Contract data from config---
+        self.ship = self.config["contract_data"]["ship"]
+        self.mfz = self.config["contract_data"]["mfz"]
+        self.stage_bom = self.config["contract_data"]["stage_bom"]
+        self.system = self.config["contract_data"]["system"]
+
         # ---Config variables---
         self.file_type = self.section.get("file_type", "")
         self.include_ext = self.section.get("include_ext", [])

@@ -26,9 +26,6 @@ class PathsService:
             self.logger.update_log_df(df_paths, step_name, cols)
             print(f"{step_name} {func.__name__}: {df_paths.shape[0]}")
 
-        self.dfs.df_to_excel(self.logger.df, "s01_paths")
-        print(f"\ns01_paths.xlsx created: {self.dfs.output_dir}")
-
         print("<<PathsService finished>>")
 
         return df_paths["filepath"].tolist()
