@@ -7,6 +7,8 @@ from project_data_app.services.excel_service import Excel
 from project_data_app.services.source_data_service import LocalFileSource
 from project_data_app.services.steplogger_service import StepLogger
 
+from project_data_app.processors.LocalPathsCollector import LocalPathsCollector
+
 from project_data_app.pipelines.Bom01_pipeline import Bom01Pipeline
 
 
@@ -22,5 +24,8 @@ class PipelineFactory:
         db = DatabaseManager(self.config)
         logger = StepLogger()
 
+        paths_collector = LocalPathsCollector(files,paths,logger)
+
         return Bom01Pipeline(config=self.config, files=files, paths=paths, excel=excel,
-                             db=db, logger=logger, add_cols=AddBomColumns, filter_cols=FilterBom)
+                             db=db, logger=logger, add_cols=AddBomColumns, filter_cols=FilterBom,
+                             paths_collector= paths_collector)
